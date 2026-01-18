@@ -1,0 +1,17 @@
+class Solution(object):
+    def maxSum(self, nums):
+        seen = set()
+        sum = 0
+        max_neg = float('-inf')
+
+        for x in nums:
+            if x <= 0:
+                max_neg = max(max_neg, x)
+            else:
+                if x not in seen:
+                    seen.add(x)
+                    sum += x
+
+        return sum if sum > 0 else max_neg
+
+
