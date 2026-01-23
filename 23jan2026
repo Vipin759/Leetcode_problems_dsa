@@ -1,0 +1,23 @@
+class Solution(object):
+    def minimumPairRemoval(self, nums):    
+
+        count = 0
+
+        def check_order(arr):
+            for j in range(len(nums) - 1):
+                if(arr[j] > arr[j+1]):
+                    return False
+            return True
+        while not check_order(nums):
+            sum = float('inf')
+            min_index = -1
+            for i in range(1, len(nums)):
+                 min_sum = nums[i] + nums[i-1]
+                 if sum > min_sum:
+                    sum = min_sum
+                    min_index = i - 1
+            if min_index != -1:
+                nums.pop(min_index)
+                nums[min_index] = sum
+                count += 1
+        return count
