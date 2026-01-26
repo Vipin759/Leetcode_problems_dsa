@@ -1,0 +1,51 @@
+"""3314. Construct the Minimum Bitwise Array I
+   3315. Construct the Minimum Bitwise Array II"""
+
+class Solution(object):
+    def minBitwiseArray(self, nums):
+        n = len(nums)
+        ans = []
+        for i in range(n):
+            if nums[i] % 2 == 0:
+                ans.append(-1)
+            else:
+                mask = ~(((nums[i]+1) & ~nums[i]) >> 1)
+                ans.append(nums[i] & mask)
+        return ans
+           
+
+
+class Solution(object):
+    def minimumAbsDifference(self, arr):
+        arr.sort()
+        abs_diff = []
+        ans = []
+        min_diff = float('inf')
+        for i in range(1, len(arr)):
+            diff = arr[i] - arr[i-1]
+            abs_diff.append(diff)
+            min_diff = min(min_diff, diff)
+        for j in range(len(abs_diff)):
+            if abs_diff[j] == min_diff:
+                ans.append([arr[j], arr[j+1]])
+        return ans
+
+
+"""  1200. Minimum Absolute Difference
+//Optimized one, lesser space """
+class Solution(object):
+    def minimumAbsDifference(self, arr):
+        arr.sort()
+        min_diff = float('inf')
+        ans = []
+
+        for i in range(1, len(arr)):
+            diff = arr[i] - arr[i - 1]
+
+            if diff < min_diff:
+                min_diff = diff
+                ans = [[arr[i - 1], arr[i]]]
+            elif diff == min_diff:
+                ans.append([arr[i - 1], arr[i]])
+
+        return ans  
