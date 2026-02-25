@@ -1,0 +1,38 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* sortByBits(int* arr, int arrSize, int* returnSize) {
+    *returnSize = arrSize;
+    int *ans = malloc(arrSize * sizeof(int));
+    for(int i = 0; i < arrSize; i++){
+        int x = arr[i];      
+        int count = 0;       
+
+        while(x != 0){
+            if(x & 1)
+                count++;
+            x >>= 1;
+        }
+
+        ans[i] = count;
+    }
+    for(int i = 0; i < arrSize-1; i++){
+    for(int j = 0; j < arrSize-1-i; j++){
+
+        if(ans[j] > ans[j+1] ||
+          (ans[j] == ans[j+1] && arr[j] > arr[j+1])) {
+
+            int temp = arr[j];
+            arr[j] = arr[j+1];
+            arr[j+1] = temp;
+
+            int t = ans[j];
+            ans[j] = ans[j+1];
+            ans[j+1] = t;
+        }
+    }
+}
+    return arr;
+
+    
+}
