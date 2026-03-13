@@ -1,0 +1,94 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
+int parent[100005];
+
+int find(int i) {
+    int root = i;
+    while (root != parent[root]) {
+        root = parent[root];
+    }
+    int curr = i;
+    while (curr != root) {
+        int nxt = parent[curr];
+        parent[curr] = root;
+        curr = nxt;
+    }
+    return root;
+}
+
+bool union_sets(int i, int j) {
+    int root_i = find(i);
+    int root_j = find(j);
+    if (root_i != root_j) {
+        parent[root_i] = root_j;
+        return true;
+    }
+    return false;
+}
+
+int maxStability(int n, int** edges, int edgesSize, int* edgesColSize, int k) {
+    int min_mandatory = 2000005;
+    
+    for (int i = 0; i < n; i++) parent[i] = i;
+    int mandatory_count = 0;
+    
+    for (int i = 0; i < edgesSize; i++) {
+        if (edges[i][3] == 1) {
+            if (!union_sets(edges[i][0], edges[i][1])) {
+                return -1;
+            }
+            mandatory_count++;
+            if (edges[i][2] < min_mandatory) {
+                min_mandatory = edges[i][2];
+            }
+        }
+    }
+    
+    if (mandatory_count > n - 1) return -1;
+    
+    int low = 1;
+    int high = min_mandatory < 200005 ? min_mandatory : 200005;
+    int ans = -1;
+    
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        
+        for (int i = 0; i < n; i++) parent[i] = i;
+        int comps = n;
+        
+        for (int i = 0; i < edgesSize; i++) {
+            if (edges[i][3] == 1) {
+                union_sets(edges[i][0], edges[i][1]);
+                comps--;
+            }
+        }
+        
+        for (int i = 0; i < edgesSize; i++) {
+            if (edges[i][3] == 0 && edges[i][2] >= mid) {
+                if (union_sets(edges[i][0], edges[i][1])) {
+                    comps--;
+                }
+            }
+        }
+        
+        int upgrades = 0;
+        for (int i = 0; i < edgesSize; i++) {
+            if (edges[i][3] == 0 && edges[i][2] < mid && edges[i][2] * 2 >= mid) {
+                if (union_sets(edges[i][0], edges[i][1])) {
+                    comps--;
+                    upgrades++;
+                }
+            }
+        }
+        
+        if (comps == 1 && upgrades <= k) {
+            ans = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    
+    return ans;
+}
