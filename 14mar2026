@@ -1,0 +1,34 @@
+#include <stdlib.h>
+#include <string.h>
+
+void dfs(int n, int k, int* count, int index, char* current, char* result) {
+    if (*count >= k) return;
+    
+    if (index == n) {
+        (*count)++;
+        if (*count == k) {
+            strcpy(result, current);
+        }
+        return;
+    }
+
+    for (char ch = 'a'; ch <= 'c'; ch++) {
+        if (index > 0 && current[index - 1] == ch) continue;
+        current[index] = ch;
+        dfs(n, k, count, index + 1, current, result);
+    }
+}
+
+char* getHappyString(int n, int k) {
+    char* result = (char*)malloc((n + 1) * sizeof(char));
+    result[0] = '\0';
+    
+    char* current = (char*)malloc((n + 1) * sizeof(char));
+    current[n] = '\0';
+    
+    int count = 0;
+    dfs(n, k, &count, 0, current, result);
+    
+    free(current);
+    return result;
+}
