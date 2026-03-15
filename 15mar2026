@@ -1,0 +1,70 @@
+#include <stdlib.h>
+
+#define MOD 1000000007
+
+// Fast Exponentiation (a^b % MOD nikalne ke liye)
+long long power(long long base, long long exp) {
+    long long res = 1;
+    base %= MOD;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % MOD;
+        base = (base * base) % MOD;
+        exp /= 2;
+    }
+    return res;
+}
+
+// Modular Multiplicative Inverse (Fermat's Little Theorem)
+long long modInverse(long long n) {
+    return power(n, MOD - 2);
+}
+
+typedef struct {
+    long long *arr;
+    int size;
+    int capacity;
+    long long mul;
+    long long add;
+} Fancy;
+
+Fancy* fancyCreate() {
+    Fancy* obj = (Fancy*)malloc(sizeof(Fancy));
+    // Question mein max 10^5 calls likhi hain, toh memory pehle hi reserve kar li
+    obj->capacity = 100005; 
+    obj->arr = (long long*)malloc(obj->capacity * sizeof(long long));
+    obj->size = 0;
+    
+    // Default multiplier 1 aur adder 0 hota hai
+    obj->mul = 1;
+    obj->add = 0;
+    
+    return obj;
+}
+
+void fancyAppend(Fancy* obj, int val) {
+    // Equation: x = (val - add) / mul % MOD
+    long long temp = (val - obj->add + MOD) % MOD; // +MOD negative values se bachne ke liye
+    obj->arr[obj->size++] = (temp * modInverse(obj->mul)) % MOD;
+}
+
+void fancyAddAll(Fancy* obj, int inc) {
+    obj->add = (obj->add + inc) % MOD;
+}
+
+void fancyMultAll(Fancy* obj, int m) {
+    obj->mul = (obj->mul * m) % MOD;
+    obj->add = (obj->add * m) % MOD;
+}
+
+int fancyGetIndex(Fancy* obj, int idx) {
+    if (idx >= obj->size) return -1;
+    
+    // Array se "raw" value uthao aur current global state uspar apply karo
+    long long res = (obj->arr[idx] * obj->mul + obj->add) % MOD;
+    return (int)res;
+}
+
+void fancyFree(Fancy* obj) {
+    free(obj->arr);
+    free(obj);
+}
