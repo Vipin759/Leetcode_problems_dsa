@@ -1,0 +1,84 @@
+#include <stdlib.h>
+#include <string.h>
+
+// Min heap of size 3
+void heapPush(int* heap, int* size, int val) {
+    // Check duplicate
+    for (int i = 0; i < *size; i++)
+        if (heap[i] == val) return;
+
+    if (*size < 3) {
+        heap[(*size)++] = val;
+        // Bubble up
+        int i = *size - 1;
+        while (i > 0) {
+            int p = (i - 1) / 2;
+            if (heap[p] > heap[i]) {
+                int t = heap[p]; heap[p] = heap[i]; heap[i] = t;
+                i = p;
+            } else break;
+        }
+    } else if (val > heap[0]) {
+        heap[0] = val;
+        // Bubble down
+        int i = 0;
+        while (1) {
+            int l = 2*i+1, r = 2*i+2, small = i;
+            if (l < 3 && heap[l] < heap[small]) small = l;
+            if (r < 3 && heap[r] < heap[small]) small = r;
+            if (small == i) break;
+            int t = heap[i]; heap[i] = heap[small]; heap[small] = t;
+            i = small;
+        }
+    }
+}
+
+int getRhombusSum(int** grid, int n, int m, int r, int ci, int cj) {
+    if (r == 0) return grid[ci][cj];
+    
+    // Check boundaries
+    if (ci - r < 0 || ci + r >= n || cj - r < 0 || cj + r >= m)
+        return -1;  // invalid
+
+    int sum = 0;
+    // 4 sides of rhombus
+    for (int k = 0; k < r; k++) {
+        sum += grid[ci - r + k][cj + k];  // top-left to top-right
+        sum += grid[ci + k][cj + r - k];  // top-right to bottom-right
+        sum += grid[ci + r - k][cj - k];  // bottom-right to bottom-left
+        sum += grid[ci - k][cj - r + k];  // bottom-left to top-left
+    }
+    return sum;
+}
+
+int* getBiggestThree(int** grid, int gridSize, int* gridColSize, int* returnSize) {
+    int n = gridSize;
+    int m = gridColSize[0];
+
+    int heap[3] = {0};
+    int hSize = 0;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            // Max possible radius
+            int maxR = (n < m ? n : m) / 2;
+            for (int r = 0; r <= maxR; r++) {
+                int s = getRhombusSum(grid, n, m, r, i, j);
+                if (s != -1)
+                    heapPush(heap, &hSize, s);
+            }
+        }
+    }
+
+    // Sort descending
+    for (int i = 0; i < hSize - 1; i++)
+        for (int j = i+1; j < hSize; j++)
+            if (heap[i] < heap[j]) {
+                int t = heap[i]; heap[i] = heap[j]; heap[j] = t;
+            }
+
+    *returnSize = hSize;
+    int* ans = (int*)malloc(hSize * sizeof(int));
+    for (int i = 0; i < hSize; i++) ans[i] = heap[i];
+    return ans;
+}
