@@ -1,0 +1,30 @@
+int numberOfSubmatrices(char** grid, int gridSize, int* gridColSize) {
+    int m = gridSize;
+    int n = gridColSize[0];
+    int count = 0;
+
+    int** x = calloc(m, sizeof(int*));
+    int** y = calloc(m, sizeof(int*));
+    for (int i = 0; i < m; i++) {
+        x[i] = calloc(n, sizeof(int));
+        y[i] = calloc(n, sizeof(int));
+    }
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            x[i][j] = (grid[i][j] == 'X') ? 1 : 0;
+            y[i][j] = (grid[i][j] == 'Y') ? 1 : 0;
+
+            if (i > 0) { x[i][j] += x[i-1][j]; y[i][j] += y[i-1][j]; }
+            if (j > 0) { x[i][j] += x[i][j-1]; y[i][j] += y[i][j-1]; }
+            if (i > 0 && j > 0) { x[i][j] -= x[i-1][j-1]; y[i][j] -= y[i-1][j-1]; }
+
+            if (x[i][j] == y[i][j] && x[i][j] > 0) count++;
+        }
+    }
+
+    for (int i = 0; i < m; i++) { free(x[i]); free(y[i]); }
+    free(x); free(y);
+
+    return count;
+}
