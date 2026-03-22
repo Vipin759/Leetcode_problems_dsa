@@ -1,0 +1,43 @@
+#include<stdbool.h>
+bool isMatch(int** mat, int** target, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (mat[i][j] != target[i][j]) {
+                return false;  
+            }
+        }
+    }
+    return true; 
+}
+void rotate90(int** mat, int n) {
+    //  Transpose
+    for(int i =0; i<n; i++){
+        for(int j = i; j<n; j++){
+            int temp = mat[i][j];
+            mat[i][j] = mat[j][i];
+            mat[j][i] = temp;
+        }
+    }
+    // To rotate a matrix by 90 degree = Transpose + reverse each row or swap columns from last to first.
+    for (int i = 0; i < n; i++) {
+        int left = 0, right = n - 1;
+        while (left < right) {
+            int temp = mat[i][left];
+            mat[i][left] = mat[i][right];
+            mat[i][right] = temp;
+            left++;
+            right--;
+        }
+    }
+}
+bool findRotation(int** mat, int matSize, int* matColSize, int** target, int targetSize, int* targetColSize) {
+    int n = matSize;
+    for (int k = 0; k < 4; k++) {
+        if (isMatch(mat, target, n)) {
+            return true;
+        }
+        rotate90(mat, n); 
+    }
+    return false; 
+}
+
