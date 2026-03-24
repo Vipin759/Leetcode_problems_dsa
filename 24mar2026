@@ -1,0 +1,38 @@
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+#include <stdlib.h>
+
+int** constructProductMatrix(int** grid, int gridSize, int* gridColSize, int* returnSize, int** returnColumnSizes) {
+    int n = gridSize;
+    int m = gridColSize[0];
+    
+    int** res = (int**)malloc(n * sizeof(int*));
+    *returnColumnSizes = (int*)malloc(n * sizeof(int));
+    *returnSize = n;
+    
+    for (int i = 0; i < n; i++) {
+        res[i] = (int*)malloc(m * sizeof(int));
+        (*returnColumnSizes)[i] = m;
+    }
+    
+    long long pref = 1;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            res[i][j] = pref;
+            pref = (pref * grid[i][j]) % 12345;
+        }
+    }
+    
+    long long suff = 1;
+    for (int i = n - 1; i >= 0; i--) {
+        for (int j = m - 1; j >= 0; j--) {
+            res[i][j] = (res[i][j] * suff) % 12345;
+            suff = (suff * grid[i][j]) % 12345;
+        }
+    }
+    
+    return res;
+}
