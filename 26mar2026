@@ -1,0 +1,95 @@
+#include <stdbool.h>
+#include <stdlib.h>
+
+bool checkHorizontal(int** grid, int m, int n) {
+    if (m < 2) return false;
+
+    long long* rowSum = (long long*)malloc(m * sizeof(long long));
+    long long totalSum = 0;
+    int* freqTop = (int*)calloc(100005, sizeof(int));
+    int* freqBot = (int*)calloc(100005, sizeof(int));
+
+    for (int i = 0; i < m; i++) {
+        rowSum[i] = 0;
+        for (int j = 0; j < n; j++) {
+            rowSum[i] += grid[i][j];
+            if (grid[i][j] <= 100000) {
+                freqBot[grid[i][j]]++;
+            }
+        }
+        totalSum += rowSum[i];
+    }
+
+    long long sumTop = 0;
+    bool possible = false;
+
+    for (int i = 0; i < m - 1; i++) {
+        for (int j = 0; j < n; j++) {
+            int val = grid[i][j];
+            if (val <= 100000) {
+                freqTop[val]++;
+                freqBot[val]--;
+            }
+        }
+        sumTop += rowSum[i];
+        long long sumBot = totalSum - sumTop;
+
+        if (sumTop == sumBot) {
+            possible = true;
+            break;
+        } else if (sumTop > sumBot) {
+            long long diff = sumTop - sumBot;
+            if (diff <= 100000) {
+                if (n == 1) {
+                    if (diff == grid[0][0] || diff == grid[i][0]) { possible = true; break; }
+                } else if (i == 0) {
+                    if (diff == grid[0][0] || diff == grid[0][n-1]) { possible = true; break; }
+                } else {
+                    if (freqTop[diff] > 0) { possible = true; break; }
+                }
+            }
+        } else {
+            long long diff = sumBot - sumTop;
+            if (diff <= 100000) {
+                if (n == 1) {
+                    if (diff == grid[i+1][0] || diff == grid[m-1][0]) { possible = true; break; }
+                } else if (i == m - 2) {
+                    if (diff == grid[m-1][0] || diff == grid[m-1][n-1]) { possible = true; break; }
+                } else {
+                    if (freqBot[diff] > 0) { possible = true; break; }
+                }
+            }
+        }
+    }
+
+    free(rowSum);
+    free(freqTop);
+    free(freqBot);
+    return possible;
+}
+
+bool canPartitionGrid(int** grid, int gridSize, int* gridColSize) {
+    int m = gridSize;
+    int n = gridColSize[0];
+
+    if (checkHorizontal(grid, m, n)) {
+        return true;
+    }
+
+    int** transposed = (int**)malloc(n * sizeof(int*));
+    for (int j = 0; j < n; j++) {
+        transposed[j] = (int*)malloc(m * sizeof(int));
+        for (int i = 0; i < m; i++) {
+            transposed[j][i] = grid[i][j];
+        }
+    }
+
+    bool res = checkHorizontal(transposed, n, m);
+
+    for (int j = 0; j < n; j++) {
+        free(transposed[j]);
+    }
+    free(transposed);
+
+    return res;
+}
