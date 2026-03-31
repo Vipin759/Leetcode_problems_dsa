@@ -1,0 +1,98 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+char* emptyString() {
+    char* res = (char*)malloc(1);
+    res[0] = '\0';
+    return res;
+}
+
+char* generateString(char* str1, char* str2) {
+    int n = strlen(str1);
+    int m = strlen(str2);
+    int N = n + m - 1;
+    
+    char* word = (char*)malloc(N + 1);
+    memset(word, '?', N);
+    word[N] = '\0';
+    
+    for (int i = 0; i < n; i++) {
+        if (str1[i] == 'T') {
+            for (int k = 0; k < m; k++) {
+                if (word[i + k] != '?' && word[i + k] != str2[k]) {
+                    free(word);
+                    return emptyString();
+                }
+                word[i + k] = str2[k];
+            }
+        }
+    }
+    
+    int* q_count = (int*)calloc(n, sizeof(int));
+    int* mismatch_count = (int*)calloc(n, sizeof(int));
+    
+    for (int i = 0; i < n; i++) {
+        if (str1[i] == 'F') {
+            for (int k = 0; k < m; k++) {
+                if (word[i + k] == '?') {
+                    q_count[i]++;
+                } else if (word[i + k] != str2[k]) {
+                    mismatch_count[i]++;
+                }
+            }
+            if (q_count[i] == 0 && mismatch_count[i] == 0) {
+                free(word);
+                free(q_count);
+                free(mismatch_count);
+                return emptyString();
+            }
+        }
+    }
+    
+    for (int j = 0; j < N; j++) {
+        if (word[j] == '?') {
+            bool forbidden[26] = {false};
+            
+            int start_i = MAX(0, j - m + 1);
+            int end_i = MIN(n - 1, j);
+            
+            for (int i = start_i; i <= end_i; i++) {
+                if (str1[i] == 'F') {
+                    if (q_count[i] == 1 && mismatch_count[i] == 0) {
+                        forbidden[str2[j - i] - 'a'] = true;
+                    }
+                }
+            }
+            
+            char chosen = 0;
+            for (char c = 'a'; c <= 'z'; c++) {
+                if (!forbidden[c - 'a']) {
+                    chosen = c;
+                    break;
+                }
+            }
+            
+            if (chosen == 0) {
+                free(word);
+                free(q_count);
+                free(mismatch_count);
+                return emptyString();
+            }
+            
+            word[j] = chosen;
+            
+            for (int i = start_i; i <= end_i; i++) {
+                if (str1[i] == 'F') {
+                    q_count[i]--;
+                    if (chosen != str2[j - i]) {
+                        mismatch_count[i]++;
+                    }
+                }
+            }
+        }
+    }
+    
+    free(q_count);
+    free(mismatch_count);
+    return word;
+}
